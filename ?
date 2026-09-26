@@ -1,0 +1,470 @@
+-- =====================================================================
+-- AXIOM ULTIMATE HUB // FREE FIRE PRO ESP EDITION
+-- =====================================================================
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local Camera = workspace.CurrentCamera
+
+if PlayerGui:FindFirstChild("AxiomFFESP Hub") then
+    PlayerGui["AxiomFFESP Hub"]:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AxiomFFESP Hub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
+
+-- 1. Nút Icon Delta (?) nổi ở góc trái
+local ToggleBtn = Instance.new("TextButton")
+ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Position = UDim2.new(0, 20, 0.3, 0)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(12, 12, 20)
+ToggleBtn.BorderColor3 = Color3.fromRGB(0, 255, 120)
+ToggleBtn.BorderSizePixel = 0
+ToggleBtn.TextColor3 = Color3.fromRGB(0, 255, 120)
+ToggleBtn.TextSize = 22
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.Text = "?"
+ToggleBtn.Active = true
+ToggleBtn.Draggable = true
+ToggleBtn.Parent = ScreenGui
+
+Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+local ToggleStroke = Instance.new("UIStroke")
+ToggleStroke.Color = Color3.fromRGB(0, 255, 120)
+ToggleStroke.Thickness = 2
+ToggleStroke.Parent = ToggleBtn
+
+-- 2. Khung Hub Chính
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 520, 0, 380)
+MainFrame.Position = UDim2.new(0.5, -260, 0.5, -190)
+MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 22)
+MainFrame.BorderSizePixel = 0
+MainFrame.Visible = false
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 14)
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(0, 255, 120)
+MainStroke.Thickness = 1.5
+MainStroke.Parent = MainFrame
+
+ToggleBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- Thanh Tiêu Đề Hub
+local TitleBar = Instance.new("Frame")
+TitleBar.Size = UDim2.new(1, 0, 0, 42)
+TitleBar.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+TitleBar.BorderSizePixel = 0
+TitleBar.Parent = MainFrame
+Instance.new("UICorner", TitleBar).CornerRadius = UDim.new(0, 14)
+
+local TitleText = Instance.new("TextLabel")
+TitleText.Size = UDim2.new(1, -20, 1, 0)
+TitleText.Position = UDim2.new(0, 15, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.TextColor3 = Color3.fromRGB(0, 255, 120)
+TitleText.TextSize = 13
+TitleText.Font = Enum.Font.GothamBold
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+TitleText.Text = "⚡ AXIOM // FREE FIRE PRO ESP EDITION ⚡"
+TitleText.Parent = TitleBar
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0.5, -15)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+CloseBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
+CloseBtn.TextSize = 12
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Text = "✕"
+CloseBtn.Parent = TitleBar
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
+
+-- =====================================================================
+-- HỆ THỐNG TAB CHUYỂN ĐỔI (SIDEBAR TRÁI - 4 TAB)
+-- =====================================================================
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 130, 1, -52)
+Sidebar.Position = UDim2.new(0, 0, 0, 48)
+Sidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 16)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = MainFrame
+
+local Container = Instance.new("Folder")
+Container.Name = "TabContainers"
+Container.Parent = MainFrame
+
+local function createTabContent(name)
+    local scrolling = Instance.new("ScrollingFrame")
+    scrolling.Name = name
+    scrolling.Size = UDim2.new(1, -140, 1, -58)
+    scrolling.Position = UDim2.new(0, 135, 0, 50)
+    scrolling.BackgroundTransparency = 1
+    scrolling.BorderSizePixel = 0
+    scrolling.CanvasSize = UDim2.new(0, 0, 0, 380)
+    scrolling.ScrollBarThickness = 3
+    scrolling.Visible = false
+    scrolling.Parent = Container
+    return scrolling
+end
+
+local tab1 = createTabContent("CombatESP")
+local tab2 = createTabContent("Movement")
+local tab3 = createTabContent("Farming")
+local tab4 = createTabContent("GiaLapPC")
+
+local function createTabButton(text, index, targetTab)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -16, 0, 34)
+    btn.Position = UDim2.new(0, 8, 0, 8 + (index - 1) * 40)
+    btn.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+    btn.TextColor3 = Color3.fromRGB(180, 180, 200)
+    btn.TextSize = 11
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = text
+    btn.Parent = Sidebar
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+    btn.MouseButton1Click:Connect(function()
+        for _, t in pairs(Container:GetChildren()) do t.Visible = false end
+        for _, b in pairs(Sidebar:GetChildren()) do
+            if b:IsA("TextButton") then
+                b.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+                b.TextColor3 = Color3.fromRGB(180, 180, 200)
+            end
+        end
+        targetTab.Visible = true
+        btn.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+        btn.TextColor3 = Color3.fromRGB(10, 10, 16)
+    end)
+    
+    if index == 1 then
+        targetTab.Visible = true
+        btn.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+        btn.TextColor3 = Color3.fromRGB(10, 10, 16)
+    end
+end
+
+createTabButton("🎯 Free Fire ESP", 1, tab1)
+createTabButton("🚀 Di Chuyển", 2, tab2)
+createTabButton("⚔️ Cày Cuốc", 3, tab3)
+createTabButton("⌨️ Giả Lập PC", 4, tab4)
+
+-- =====================================================================
+-- HÀM TẠO CÔNG TẮC CHUẨN MINECRAFT (TOGGLE SWITCH ON/OFF)
+-- =====================================================================
+local function createMinecraftToggle(parent, text, posY, callback)
+    local itemFrame = Instance.new("Frame")
+    itemFrame.Size = UDim2.new(1, -10, 0, 36)
+    itemFrame.Position = UDim2.new(0, 5, 0, posY)
+    itemFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 34)
+    itemFrame.BorderSizePixel = 0
+    itemFrame.Parent = parent
+    Instance.new("UICorner", itemFrame).CornerRadius = UDim.new(0, 8)
+
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -60, 1, 0)
+    lbl.Position = UDim2.new(0, 10, 0, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.TextColor3 = Color3.fromRGB(230, 230, 240)
+    lbl.TextSize = 11
+    lbl.Font = Enum.Font.GothamSemibold
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Text = text
+    lbl.Parent = itemFrame
+
+    local switchBg = Instance.new("TextButton")
+    switchBg.Size = UDim2.new(0, 46, 0, 20)
+    switchBg.Position = UDim2.new(1, -52, 0.5, -10)
+    switchBg.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    switchBg.BorderSizePixel = 0
+    switchBg.Text = ""
+    switchBg.Parent = itemFrame
+    Instance.new("UICorner", switchBg).CornerRadius = UDim.new(1, 0)
+
+    local switchDot = Instance.new("Frame")
+    switchDot.Size = UDim2.new(0, 16, 0, 16)
+    switchDot.Position = UDim2.new(0, 2, 0.5, -8)
+    switchDot.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    switchDot.BorderSizePixel = 0
+    switchDot.Parent = switchBg
+    Instance.new("UICorner", switchDot).CornerRadius = UDim.new(1, 0)
+
+    local active = false
+    switchBg.MouseButton1Click:Connect(function()
+        active = not active
+        if active then
+            TweenService:Create(switchBg, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 200, 100)}):Play()
+            TweenService:Create(switchDot, TweenInfo.new(0.2), {Position = UDim2.new(1, -18, 0.5, -8), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+        else
+            TweenService:Create(switchBg, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 60)}):Play()
+            TweenService:Create(switchDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -8), BackgroundColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+        end
+        callback(active)
+    end)
+end
+
+-- =====================================================================
+-- TAB 1: FREE FIRE PRO ESP (Box, Name, Distance, Health Bar & Lines)
+-- =====================================================================
+local ffEspConn
+createMinecraftToggle(tab1, "👁️ FF ESP (Box + Thanh Máu + Khoảng Cách)", 5, function(state)
+    if state then
+        ffEspConn = RunService.RenderStepped:Connect(function()
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local char = p.Character
+                    local hum = char:FindFirstChild("Humanoid")
+                    local root = char:FindFirstChild("HumanoidRootPart")
+                    if hum and root and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local rootPos, onScreen = Camera:WorldToViewportPoint(root.Position)
+                        
+                        -- Tạo Billboard hiển thị thông tin pro
+                        local bill = char:FindFirstChild("FF_ProESP") or Instance.new("BillboardGui", char)
+                        bill.Name = "FF_ProESP"
+                        bill.Size = UDim2.new(0, 160, 0, 50)
+                        bill.StudsOffset = Vector3.new(0, 3, 0)
+                        bill.AlwaysOnTop = true
+                        
+                        local txt = bill:FindFirstChildOfClass("TextLabel") or Instance.new("TextLabel", bill)
+                        txt.Size = UDim2.new(1, 0, 1, 0)
+                        txt.BackgroundTransparency = 1
+                        txt.TextColor3 = Color3.fromRGB(255, 50, 50)
+                        txt.TextStrokeTransparency = 0
+                        txt.TextSize = 11
+                        txt.Font = Enum.Font.GothamBold
+                        
+                        local dist = math.floor((LocalPlayer.Character.HumanoidRootPart.Position - root.Position).Magnitude)
+                        local hp = math.floor(hum.Health)
+                        txt.Text = "⚡ [" .. p.Name .. "]\n❤️ HP: " .."[" .. hp .. "] | 📍 " .. dist .. "m"
+                    end
+                end
+            end
+        end)
+    else
+        if ffEspConn then ffEspConn:Disconnect() ffEspConn = nil end
+        for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("FF_ProESP") then p.Character.FF_ProESP:Destroy() end
+        end
+    end
+end)
+
+local aimbotConn
+createMinecraftToggle(tab1, "🎯 Aimbot Khóa Tâm Tự Động", 44, function(state)
+    if state then
+        aimbotConn = RunService.RenderStepped:Connect(function()
+            local closest, minD = nil, math.huge
+            local mouse = UserInputService:GetMouseLocation()
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                    local hum = p.Character:FindFirstChild("Humanoid")
+                    if hum and hum.Health > 0 then
+                        local pos, onScreen = Camera:WorldToViewportPoint(p.Character.Head.Position)
+                        if onScreen then
+                            local d = (Vector2.new(pos.X, pos.Y) - mouse).Magnitude
+                            if d < minD then minD = d closest = p.Character.Head end
+                        end
+                    end
+                end
+            end
+            if closest then Camera.CFrame = CFrame.new(Camera.CFrame.Position, closest.Position) end
+        end)
+    else
+        if aimbotConn then aimbotConn:Disconnect() aimbotConn = nil end
+    end
+end)
+
+local noclipConn
+createMinecraftToggle(tab1, "🧱 X-Ray & Xuyên Tường (Noclip)", 83, function(state)
+    if state then
+        noclipConn = RunService.Stepped:Connect(function()
+            local char = LocalPlayer.Character
+            if char then
+                for _, p in pairs(char:GetDescendants()) do
+                    if p:IsA("BasePart") then p.Transparency = 0.5 p.CanCollide = false end
+                end
+            end
+        end)
+    else
+        if noclipConn then noclipConn:Disconnect() noclipConn = nil end
+        local char = LocalPlayer.Character
+        if char then
+            for _, p in pairs(char:GetDescendants()) do
+                if p:IsA("BasePart") then p.Transparency = 0 p.CanCollide = true end
+            end
+        end
+    end
+end)
+
+createMinecraftToggle(tab1, "💡 FullBright (Sáng Rực Bản Đồ)", 122, function(state)
+    if state then
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.GlobalShadows = false
+        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+    else
+        Lighting.Brightness = 1
+        Lighting.GlobalShadows = true
+        Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+    end
+end)
+
+-- =====================================================================
+-- TAB 2: DI CHUYỂN (Tốc độ, Fly, Nhảy vô hạn)
+-- =====================================================================
+local speedConn
+createMinecraftToggle(tab2, "⚡ Tăng Tốc Độ Chạy (Speed 60)", 5, function(state)
+    if state then
+        speedConn = RunService.Heartbeat:Connect(function()
+            local char = LocalPlayer.Character
+            if char and char:FindFirstChild("Humanoid") then char.Humanoid.WalkSpeed = 60 end
+        end)
+    else
+        if speedConn then speedConn:Disconnect() speedConn = nil end
+        local char = LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then char.Humanoid.WalkSpeed = 16 end
+    end
+end)
+
+local flyConn, flyGyro, flyVel
+createMinecraftToggle(tab2, "🕊️ Bay Lượn Tự Do (Fly Hack)", 44, function(state)
+    local char = LocalPlayer.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    if state and root then
+        flyGyro = Instance.new("BodyGyro", root)
+        flyGyro.P = 9e4
+        flyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+        flyVel = Instance.new("BodyVelocity", root)
+        flyVel.Velocity = Vector3.new(0, 0, 0)
+        flyVel.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        
+        flyConn = RunService.RenderStepped:Connect(function()
+            flyGyro.CFrame = Camera.CFrame
+            local moveV = Vector3.new()
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveV = moveV + Camera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveV = moveV - Camera.CFrame.LookVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveV = moveV - Camera.CFrame.RightVector end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveV = moveV + Camera.CFrame.RightVector end
+            flyVel.Velocity = moveV * 50
+        end)
+    else
+        if flyConn then flyConn:Disconnect() flyConn = nil end
+        if flyGyro then flyGyro:Destroy() flyGyro = nil end
+        if flyVel then flyVel:Destroy() flyVel = nil end
+    end
+end)
+
+local jumpConn
+createMinecraftToggle(tab2, "🦘 Nhảy Vô Hạn Trên Không (Infinite Jump)", 83, function(state)
+    if state then
+        jumpConn = UserInputService.JumpRequest:Connect(function()
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+        end)
+    else
+        if jumpConn then jumpConn:Disconnect() jumpConn = nil end
+    end
+end)
+
+-- =====================================================================
+-- TAB 3: CÀY CUỐC (Hút vật phẩm, Auto Farm)
+-- =====================================================================
+local magnetConn
+createMinecraftToggle(tab3, "🧲 Tự Động Hút Vật Phẩm / Trái Cây", 5, function(state)
+    if state then
+        magnetConn = RunService.Heartbeat:Connect(function()
+            local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if root then
+                for _, obj in pairs(workspace:GetDescendants()) do
+                    if obj:IsA("BasePart") and (obj.Name:lower():find("item") or obj.Name:lower():find("fruit") or obj:FindFirstChildOfClass("TouchTransmitter")) then
+                        obj.CFrame = root.CFrame
+                    end
+                end
+            end
+        end)
+    else
+        if magnetConn then magnetConn:Disconnect() magnetConn = nil end
+    end
+end)
+
+local farmConn
+createMinecraftToggle(tab3, "⚔️ Auto Farm Đánh Quái Gần Nhất", 44, function(state)
+    if state then
+        farmConn = RunService.Heartbeat:Connect(function()
+            local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if root then
+                for _, enemy in pairs(workspace:GetDescendants()) do
+                    if enemy:IsA("Model") and enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") and enemy ~= LocalPlayer.Character then
+                        if enemy.Humanoid.Health > 0 then
+                            local dist = (root.Position - enemy.HumanoidRootPart.Position).Magnitude
+                            if dist < 50 then
+                                root.CFrame = enemy.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+                                local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                                if tool then tool:Activate() end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    else
+        if farmConn then farmConn:Disconnect() farmConn = nil end
+    end
+end)
+
+-- =====================================================================
+-- TAB 4: GIẢ LẬP PC (WASD + S ĐỔI MÀU)
+-- =====================================================================
+local pcGui = Instance.new("ScreenGui", PlayerGui)
+pcGui.Name = "FFHubPC"
+pcGui.Enabled = false
+
+local function makeKey(text, kc, pos, isColorS)
+    local b = Instance.new("TextButton", pcGui)
+    b.Size = UDim2.new(0, 42, 0, 42)
+    b.Position = pos
+    b.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    b.BorderColor3 = Color3.fromRGB(0, 255, 120)
+    b.TextColor3 = Color3.fromRGB(0, 255, 120)
+    b.TextSize = 14
+    b.Font = Enum.Font.GothamBold
+    b.Text = text
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+    
+    b.MouseButton1Down:Connect(function()
+        if isColorS then
+            b.BackgroundColor3 = Color3.fromRGB(255, 0, 120)
+        else
+            b.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+        end
+        b.TextColor3 = Color3.fromRGB(255, 255, 255)
+        VirtualInputManager:SendKeyEvent(true, kc, false, game)
+    end)
+    b.MouseButton1Up:Connect(function()
+        b.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+        b.TextColor3 = Color3.fromRGB(0, 255, 120)
+        VirtualInputManager:SendKeyEvent(false, kc, false, game)
+    end)
+end
+
+makeKey("W", Enum.KeyCode.W, UDim2.new(0, 50, 1, -130), false)
+makeKey("A", Enum.KeyCode.A, UDim2.new(0, 5, 1, -85), false)
+makeKey("S", Enum.KeyCode.S, UDim2.new(0, 50, 1, -85), true)
+makeKey("D", Enum.KeyCode.D, UDim2.new(0, 95, 1, -85), false)
+
+createMinecraftToggle(tab4, "⌨️ Bật/Tắt Bàn Phím Giả Lập PC", 5, function(state)
+    pcGui.Enabled = state
+end)
